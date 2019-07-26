@@ -1,0 +1,47 @@
+logging:
+  level:
+    .: INFO
+
+server:
+  port: 9000
+  tomcat:
+    accesslog:
+      enabled: true
+management:
+  server:
+    port: 9001
+
+spring:
+  profiles:
+    active: test
+
+---
+spring:
+  profiles: test
+  main:
+    banner-mode: "off"
+    log-startup-info: false
+  application:
+    name: test-service-test
+management:
+  server:
+    address: 127.0.0.1
+
+---
+spring:
+  profiles: dev
+  main:
+    banner-mode: "off"
+    log-startup-info: false
+  application:
+    name: test-service-dev
+
+---
+spring:
+  profiles: prod
+  main:
+    banner-mode: "off"
+    log-startup-info: false
+  application:
+    name: test-service
+
