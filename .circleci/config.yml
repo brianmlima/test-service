@@ -33,4 +33,10 @@ jobs:
             - ~/.m2
           key: v1-dependencies-{{ checksum "pom.xml" }}
       # package into a jar, this also runs tests
-      - run: mvn clean package
+      - run: mvn clean package deploy
+workflows:
+  version: 2
+  workflow:
+    jobs:
+      - build:
+          context: Dev-Tag-Service
