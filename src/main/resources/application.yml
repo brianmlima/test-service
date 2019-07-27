@@ -3,13 +3,13 @@ logging:
     .: INFO
 
 server:
-  port: 9000
+  port: 8080
   tomcat:
     accesslog:
       enabled: true
 management:
   server:
-    port: 9001
+    port: 8081
 
 spring:
   profiles:

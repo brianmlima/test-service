@@ -23,14 +23,24 @@ public class TestService {
     public static final String HELLO_MAPPING="/hello";
 
     public static final String ECHO_MAPPING="/echo";
-
     public static final String ECHO_STRING_PARAM="string";
+
+
+    public static final String VERSION_MAPPING="/version";
+    public static final String VERSION_SYSTEM_PROP_NAME="app_version";
+
 
 
     @GetMapping(HELLO_MAPPING)
     @ResponseBody
     public String hello() {
         return HELLO_RESPONSE_STRING;
+    }
+
+    @GetMapping(VERSION_MAPPING)
+    @ResponseBody
+    public String version() {
+        return System.getProperty(VERSION_SYSTEM_PROP_NAME);
     }
 
     @GetMapping(ECHO_MAPPING)

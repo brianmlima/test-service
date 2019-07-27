@@ -1,12 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns="http://maven.apache.org/POM/4.0.0"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>org.bml</groupId>
     <artifactId>test-service</artifactId>
-    <version>0.0.0-SNAPSHOT</version>
 
     <parent>
         <groupId>org.springframework.boot</groupId>
@@ -15,6 +14,8 @@
     </parent>
 
     <properties>
+        <semVersion>0.0.0</semVersion>
+        <docker.repository.name>brianmlima/${project.artifactId}</docker.repository.name>
         <version.number>${git.commit.time}.${git.commit.id.abbrev}</version.number>
     </properties>
 
@@ -38,10 +39,11 @@
             </dependency>
         </dependencies>
     </dependencyManagement>
-
     <build>
         <plugins>
 
+            <!-- ################################################################################################### -->
+            <!-- BEGIN Create version from the time and the commit hash -->
             <plugin>
                 <groupId>pl.project13.maven</groupId>
                 <artifactId>git-commit-id-plugin</artifactId>
@@ -57,9 +59,50 @@
                 <configuration>
                     <dateFormat>yyyyMMdd-HHmmss</dateFormat><!--  human-readable part of the version number -->
                     <dotGitDirectory>${project.basedir}/.git</dotGitDirectory>
-                    <generateGitPropertiesFile>false</generateGitPropertiesFile><!-- somehow necessary. otherwise the variables are not available in the pom -->
+                    <generateGitPropertiesFile>false
+                    </generateGitPropertiesFile><!-- somehow necessary. otherwise the variables are not available in the pom -->
                 </configuration>
             </plugin>
+            <!-- END Create version from the time and the commit hash -->
+            <!-- ################################################################################################### -->
+
+
+            <plugin>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <phase>validate</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <configuration>
+                            <tasks>
+                                <echo>used version: ${jgitver.used_version}</echo>
+                                <echo>version calculated: ${jgitver.calculated_version}</echo>
+                                <echo>dirty: ${jgitver.dirty}</echo>
+                                <echo>head_committer_name: ${jgitver.head_committer_name}</echo>
+                                <echo>head_commiter_email: ${jgitver.head_commiter_email}</echo>
+                                <echo>head_commit_datetime: ${jgitver.head_commit_datetime}</echo>
+                                <echo>git_sha1_full: ${jgitver.git_sha1_full}</echo>
+                                <echo>git_sha1_8: ${jgitver.git_sha1_8}</echo>
+                                <echo>branch_name: ${jgitver.branch_name}</echo>
+                                <echo>head_tags: ${jgitver.head_tags}</echo>
+                                <echo>head_annotated_tags: ${jgitver.head_annotated_tags}</echo>
+                                <echo>head_lightweight_tags: ${jgitver.head_lightweight_tags}</echo>
+                                <echo>base_tag: ${jgitver.base_tag}</echo>
+                                <echo>all_tags: ${jgitver.all_tags}</echo>
+                                <echo>all_annotated_tags: ${jgitver.all_annotated_tags}</echo>
+                                <echo>all_lightweight_tags: ${jgitver.all_lightweight_tags}</echo>
+                                <echo>all_version_tags: ${jgitver.all_version_tags}</echo>
+                                <echo>all_version_annotated_tags: ${jgitver.all_version_annotated_tags}</echo>
+                                <echo>all_version_lightweight_tags: ${jgitver.all_version_lightweight_tags}</echo>
+                            </tasks>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+
 
 
             <plugin>
@@ -92,13 +135,50 @@
                 </executions>
             </plugin>
 
+            <!-- ################################################################################################### -->
+            <!-- BEGIN DOCKER build and push -->
+            <plugin>
+                <groupId>io.fabric8</groupId>
+                <artifactId>docker-maven-plugin</artifactId>
+                <version>0.21.0</version>
+                <extensions>true</extensions>
+                <configuration>
+                    <!-- a) use "docker login" up front to store the credentials on the local machine. -->
+                    <images>
+                        <image>
+                            <name>${docker.repository.name}:${version.number}</name>
+                            <build>
+                                <!-- define additional tags for the image -->
+                                <tags>
+                                    <tag>latest</tag>
+                                </tags>
+                            </build>
+                        </image>
+                    </images>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>build-docker-image</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>build</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>push-docker-image-to-registry</id>
+                        <phase>deploy</phase>
+                        <goals>
+                            <goal>push</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
             <plugin>
                 <artifactId>maven-install-plugin</artifactId>
                 <configuration>
                     <skip>true</skip> <!-- we push the container image to the local registry instead -->
                 </configuration>
             </plugin>
-
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-deploy-plugin</artifactId>
@@ -106,14 +186,35 @@
                     <skip>true</skip> <!--  we push the image instead  -->
                 </configuration>
             </plugin>
-
-
-
+            <!-- END DOCKER build and push -->
+            <!-- ################################################################################################### -->
         </plugins>
     </build>
-
-
     <dependencies>
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpclient</artifactId>
+            <version>4.5.9</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>28.0-jre</version>
+        </dependency>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>1.18.8</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-annotations</artifactId>
+            <scope>compile</scope>
+        </dependency>
+
+        <!-- ####################################################################################################### -->
+        <!-- BEGIN SPRING -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
@@ -131,6 +232,8 @@
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
+        <!-- END SPRING -->
+        <!-- ####################################################################################################### -->
 
         <!-- ####################################################################################################### -->
         <!-- BEGIN SLF4j LOGGBACK -->
@@ -138,14 +241,18 @@
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
-            <!--        <version>1.7.24</version>-->
-            <!--        <type>jar</type>-->
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>jcl-over-slf4j</artifactId>
-            <!--        <version>1.7.22</version>-->
-            <!--        <type>jar</type>-->
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-ext</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>log4j-over-slf4j</artifactId>
         </dependency>
         <dependency>
             <groupId>ch.qos.logback</groupId>
@@ -153,19 +260,6 @@
             <version>1.1.9</version>
             <type>jar</type>
         </dependency>
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-ext</artifactId>
-            <!--        <version>1.7.5</version>-->
-            <!--        <type>jar</type>-->
-        </dependency>
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>log4j-over-slf4j</artifactId>
-            <!--        <version>1.7.25</version>-->
-            <!--        <type>jar</type>-->
-        </dependency>
-        <!-- https://mvnrepository.com/artifact/ch.qos.logback/log4j-bridge -->
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>log4j-bridge</artifactId>
@@ -175,43 +269,24 @@
         <!-- END SLF4j LOGGBACK -->
         <!-- ####################################################################################################### -->
 
-
-
+        <!-- ####################################################################################################### -->
+        <!-- BEGIN TEST DEPS -->
         <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-            <version>1.18.8</version>
-            <scope>provided</scope>
+            <groupId>org.hamcrest</groupId>
+            <artifactId>hamcrest</artifactId>
+            <version>2.1</version>
+            <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-annotations</artifactId>
-            <version>2.9.8</version>
-            <scope>compile</scope>
+            <groupId>com.thedeanda</groupId>
+            <artifactId>lorem</artifactId>
+            <version>2.1</version>
+            <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>org.aspectj</groupId>
-            <artifactId>aspectjweaver</artifactId>
-            <!--            <version>1.8.8</version>-->
-        </dependency>
-        <!-- https://mvnrepository.com/artifact/org.yaml/snakeyaml -->
-        <dependency>
-            <groupId>org.yaml</groupId>
-            <artifactId>snakeyaml</artifactId>
-            <version>1.24</version>
-        </dependency>
-
-
-    <!-- https://mvnrepository.com/artifact/org.hamcrest/hamcrest -->
-    <dependency>
-        <groupId>org.hamcrest</groupId>
-        <artifactId>hamcrest</artifactId>
-        <version>2.1</version>
-        <scope>test</scope>
-    </dependency>
+        <!-- END TEST DEPS -->
+        <!-- ####################################################################################################### -->
 
     </dependencies>
-
 
 
 </project>
