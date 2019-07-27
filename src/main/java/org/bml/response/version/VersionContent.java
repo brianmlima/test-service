@@ -1,4 +1,4 @@
-package org.bml.response;
+package org.bml.response.version;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
@@ -34,7 +34,6 @@ public class VersionContent {
     @JsonProperty(required = false)
     private Scm scm;
 
-
     @JsonPOJOBuilder(withPrefix = "")
     public static class VersionContentBuilder {
     }
@@ -44,14 +43,13 @@ public class VersionContent {
     @Getter
     @Accessors(fluent = true)
     public static class Build {
-        @JsonProperty()
+        @JsonProperty
         private String profile;
 
         @JsonPOJOBuilder(withPrefix = "")
         public static class BuildBuilder {
         }
     }
-
 
     @JsonDeserialize(builder = Scm.ScmBuilder.class)
     @Builder(builderClassName = "ScmBuilder", toBuilder = true)
@@ -60,13 +58,13 @@ public class VersionContent {
     public static class Scm {
         @JsonProperty
         private String branch;
+        @JsonProperty
         private Commit commit;
 
         @JsonPOJOBuilder(withPrefix = "")
         public static class ScmBuilder {
         }
     }
-
 
     @JsonDeserialize(builder = Commit.CommitBuilder.class)
     @Builder(builderClassName = "CommitBuilder", toBuilder = true)
@@ -88,11 +86,11 @@ public class VersionContent {
     @Getter
     @Accessors(fluent = true)
     public static class Hash {
-        @JsonProperty()
+        @JsonProperty
         private String type;
-        @JsonProperty()
+        @JsonProperty
         private String full;
-        @JsonProperty()
+        @JsonProperty
         private String eight;
 
         @JsonPOJOBuilder(withPrefix = "")
@@ -101,3 +99,7 @@ public class VersionContent {
     }
 
 }
+
+
+
+

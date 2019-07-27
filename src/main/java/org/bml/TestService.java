@@ -3,7 +3,7 @@ package org.bml;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
-import org.bml.response.VersionContent;
+import org.bml.response.version.VersionContent;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.SpringApplication;

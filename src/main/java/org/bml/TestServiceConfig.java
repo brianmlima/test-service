@@ -3,18 +3,20 @@ package org.bml;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.google.common.collect.ImmutableList;
+import org.bml.response.version.VersionContent;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.HttpMessageConverter;
-import org.springframework.http.converter.json.AbstractJackson2HttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.config.annotation.ContentNegotiationConfigurer;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 
 @Configuration
@@ -35,6 +37,15 @@ public class TestServiceConfig implements WebMvcConfigurer {
         return new ObjectMapper(new YAMLFactory());
     }
 
+
+    @Bean
+    public VersionContent versionContent(final ObjectMapper jsonObjectMapper)throws IOException{
+        try (InputStream inputStream = getClass().getClassLoader().getResourceAsStream("version.json")) {
+            VersionContent versionContent = jsonObjectMapper.readValue(inputStream, VersionContent.class);
+            return versionContent;
+        }
+    }
+
     @Override
     public void configureContentNegotiation(ContentNegotiationConfigurer configurer) {
         configurer
@@ -52,6 +63,13 @@ public class TestServiceConfig implements WebMvcConfigurer {
     public void extendMessageConverters(List<HttpMessageConverter<?>> converters) {
         converters.add(new YamlMessageConverter());
     }
+
+
+
+
+
+
+
 
     @Component
     public static class YamlMessageConverter extends MappingJackson2HttpMessageConverter {
