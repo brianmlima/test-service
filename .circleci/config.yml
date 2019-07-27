@@ -3,6 +3,8 @@
 # Check https://circleci.com/docs/2.0/language-java/ for more details
 #
 version: 2
+orbs:
+  docker: circleci/docker@0.5.0
 jobs:
   build:
     docker:
@@ -16,12 +18,6 @@ jobs:
       - checkout
       - setup_remote_docker:
           docker_layer_caching: true
-      - run:
-          name: "Lets take advantage of dockers squash"
-          command: |
-            # Restart Docker with experimental features on.
-            sudo sh -c 'echo '\''DOCKER_OPTS="--experimental=true"'\'' >> /etc/default/docker'
-            sudo service docker restart
       - run:
           name: Login to DockerHub
           command: docker login -u $DOCKER_USER -p $DOCKER_PASS
@@ -38,12 +34,3 @@ jobs:
           key: v1-dependencies-{{ checksum "pom.xml" }}
       # package into a jar, this also runs tests
       - run: mvn clean package
-      # build and push docker image to docker hub
-      - run: mvn clean compile jib:build -Dimage=zarinlo/springboot-api:$CIRCLE_BUILD_NUM
-      - docker/build:
-          extra_build_args: '--squash --build-arg default_spring_profile=prd'
-          dockerfile: ~/test-service/Dockerfile
-          path: ~/test-service
-          registry: brianmlima
-          image: test-service
-          tag: $CIRCLE_SHA1
