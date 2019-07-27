@@ -10,8 +10,13 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.web.server.LocalServerPort;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 
 import java.nio.charset.StandardCharsets;
 import java.util.List;
@@ -36,6 +41,17 @@ public abstract class TestingBase {
     protected <T> ResponseEntity<T> template(final String path, Class<T> clazz) {
         return restTemplate.getForEntity(localhost(path), clazz);
     }
+
+
+    protected <T> ResponseEntity<T> template(final String path, Class<T> clazz,MediaType mediaType) {
+
+        HttpHeaders headers = new HttpHeaders();
+        //headers.setContentType(mediaType);
+        headers.setAccept(ImmutableList.of(mediaType));
+        HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(new LinkedMultiValueMap<>(), headers);
+        return restTemplate.getForEntity(localhost(path), clazz, request);
+    }
+
 
     protected <T> ResponseEntity<T> template(final String path, final String paramKey, final String paramValue, final Class<T> clazz) {
         return template(

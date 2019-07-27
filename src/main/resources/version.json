@@ -1,0 +1,17 @@
+{
+  "version": "@jgitver.calculated_version@",
+  "build": {
+    "profile": "@activeProfile@"
+  },
+  "scm": {
+    "branch": "@jgitver.branch_name@",
+    "commit": {
+      "message": "@git.commit.message.full@",
+      "hash": {
+        "type": "sha1",
+        "full": "@jgitver.git_sha1_full@",
+        "eight":"@jgitver.git_sha1_8@"
+      }
+    }
+  }
+}
