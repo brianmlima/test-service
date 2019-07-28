@@ -6,7 +6,32 @@ version: 2
 orbs:
   docker: circleci/docker@0.5.0
 jobs:
-  build-and-publish:
+  test:
+    docker:
+      # specify the version you desire here
+      - image: circleci/openjdk:11.0.1-jdk
+    working_directory: ~/test-service
+    environment:
+      # Customize the JVM maximum heap limit
+      MAVEN_OPTS: -Xmx3200m
+    steps:
+      - checkout
+      # Download and cache dependencies
+      - restore_cache:
+          keys:
+            - v1-dependencies-{{ checksum "pom.xml" }}
+            # fallback to using the latest cache if no exact match is found
+            - v1-dependencies-
+      - run: mvn dependency:go-offline
+      - save_cache:
+          paths:
+            - ~/.m2
+          key: v1-dependencies-{{ checksum "pom.xml" }}
+      # runs tests
+      - run: mvn --profile ci clean test
+
+
+  deploy-prd:
     docker:
       # specify the version you desire here
       - image: circleci/openjdk:11.0.1-jdk
@@ -33,10 +58,17 @@ jobs:
             - ~/.m2
           key: v1-dependencies-{{ checksum "pom.xml" }}
       # package into a jar, this also runs tests
-      - run: mvn clean package deploy
+      - run: mvn --profile ci clean package deploy
 workflows:
   version: 2
   workflow:
     jobs:
-      - build-and-publish:
+      - test
+      - deploy-prd:
           context: Dev-Tag-Service
+          requires:
+            -test
+          filters:
+            branches:
+              only:
+                - master

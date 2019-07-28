@@ -141,7 +141,6 @@
                 </plugins>
             </build>
         </profile>
-
     </profiles>
 
 
@@ -163,29 +162,6 @@
             </resource>
         </resources>
         <plugins>
-
-
-
-
-            <!--            <plugin>-->
-            <!--                <groupId>org.apache.maven.plugins</groupId>-->
-            <!--                <artifactId>maven-antrun-plugin</artifactId>-->
-            <!--                <version>1.8</version>-->
-            <!--                <executions>-->
-            <!--                    <execution>-->
-            <!--                        <phase>generate-resources</phase>-->
-            <!--                        <goals>-->
-            <!--                            <goal>run</goal>-->
-            <!--                        </goals>-->
-            <!--                        <configuration>-->
-            <!--                            <tasks>-->
-            <!--                                <echo>current active profile: ${project.activeProfiles[0].id}</echo>-->
-            <!--                            </tasks>-->
-            <!--                        </configuration>-->
-            <!--                    </execution>-->
-            <!--                </executions>-->
-            <!--            </plugin>-->
-
             <!-- ################################################################################################### -->
             <!-- BEGIN Create version from the time and the commit hash -->
             <plugin>
@@ -315,7 +291,6 @@
         <dependency>
             <groupId>com.fasterxml.jackson.dataformat</groupId>
             <artifactId>jackson-dataformat-yaml</artifactId>
-<!--            <version>2.9.9</version>-->
         </dependency>
 
 
@@ -363,18 +338,12 @@
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
-<!--            <version>1.2.3</version>-->
             <type>jar</type>
         </dependency>
-        <!-- https://mvnrepository.com/artifact/ch.qos.logback/logback-core -->
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-core</artifactId>
-<!--            <version>1.2.3</version>-->
         </dependency>
-
-
-
 
 
         <dependency>
