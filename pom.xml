@@ -17,7 +17,7 @@
     <properties>
         <semVersion>0.0.0</semVersion>
         <docker.repository.name>brianmlima/${project.artifactId}</docker.repository.name>
-        <version.number>${git.commit.time}.${git.commit.id.abbrev}</version.number>
+        <version.number>${jgitver.calculated_version}</version.number>
     </properties>
 
     <dependencyManagement>
@@ -111,10 +111,6 @@
                                 <image>
                                     <name>${docker.repository.name}:${version.number}</name>
                                     <build>
-                                        <!-- define additional tags for the image -->
-                                        <tags>
-                                            <tag>latest</tag>
-                                        </tags>
                                     </build>
                                 </image>
                             </images>
