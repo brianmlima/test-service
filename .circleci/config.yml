@@ -28,7 +28,7 @@ jobs:
             - ~/.m2
           key: v1-dependencies-{{ checksum "pom.xml" }}
       # runs tests
-      - run: mvn --profile ci clean test
+      - run: mvn --activate-profiles ci clean test
   deploy-prd:
     docker:
       # specify the version you desire here
@@ -56,7 +56,7 @@ jobs:
             - ~/.m2
           key: v1-dependencies-{{ checksum "pom.xml" }}
       # package into a jar, this also runs tests
-      - run: mvn --profile ci clean package deploy -DskipTests
+      - run: mvn --activate-profiles ci clean package deploy -DskipTests
 workflows:
   version: 2
   workflow:
